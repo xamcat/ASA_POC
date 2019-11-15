@@ -26,10 +26,10 @@ import java.util.concurrent.Future;
 
 class AzureSpatialAnchorsManager {
     // Set this string to the account ID provided for the Azure Spatial Service resource.
-    public static final String SpatialAnchorsAccountId = "Set me";
+    public static final String SpatialAnchorsAccountId = "badb57cb-9078-4878-93e2-726d0dc80459";
 
     // Set this string to the account key provided for the Azure Spatial Service resource.
-    public static final String SpatialAnchorsAccountKey = "Set me";
+    public static final String SpatialAnchorsAccountKey = " d4p3qmgg/mJooM6BWZMIbYT6VPaiTH593J6UwjEe8V4=";
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 

@@ -43,7 +43,7 @@ public class SharedActivity extends AppCompatActivity
     }
 
     // Set this string to the URL created when publishing your Shared anchor service in the Sharing sample.
-    private static final String SharingAnchorsServiceUrl = "";
+    private static final String SharingAnchorsServiceUrl = "https://asapocsharing.azurewebsites.net/api/anchors";
 
     private String anchorId = "";
     private final ConcurrentHashMap<String, AnchorVisual> anchorVisuals = new ConcurrentHashMap<>();

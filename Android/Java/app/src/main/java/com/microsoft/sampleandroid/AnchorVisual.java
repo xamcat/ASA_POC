@@ -2,15 +2,19 @@
 // Licensed under the MIT license.
 package com.microsoft.sampleandroid;
 
+import android.net.Uri;
+import android.util.Log;
+
 import com.google.ar.core.Anchor;
 import com.google.ar.sceneform.AnchorNode;
-import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.Material;
+import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.Renderable;
-import com.google.ar.sceneform.rendering.ShapeFactory;
 import com.google.ar.sceneform.ux.ArFragment;
 import com.google.ar.sceneform.ux.TransformableNode;
 import com.microsoft.azure.spatialanchors.CloudSpatialAnchor;
+
+import static android.content.ContentValues.TAG;
 
 class AnchorVisual {
     private final AnchorNode anchorNode;
@@ -36,14 +40,27 @@ class AnchorVisual {
 
     public void render(ArFragment arFragment) {
         MainThreadContext.runOnUiThread(() -> {
-            nodeRenderable = ShapeFactory.makeSphere(0.1f, new Vector3(0.0f, 0.15f, 0.0f), color);
-            anchorNode.setRenderable(nodeRenderable);
-            anchorNode.setParent(arFragment.getArSceneView().getScene());
+            ModelRenderable.builder()
+                    // To load asf an asset from the 'assets' folder ('src/main/assets/andy.sfb'):
+                    .setSource(arFragment.getContext(), R.raw.andy)
+                    .build()
+                    .thenAccept(renderable ->{
+                        MainThreadContext.runOnUiThread(() -> {
+                            anchorNode.setRenderable(renderable);
+                            anchorNode.setParent(arFragment.getArSceneView().getScene());
 
-            TransformableNode sphere = new TransformableNode(arFragment.getTransformationSystem());
-            sphere.setParent(this.anchorNode);
-            sphere.setRenderable(this.nodeRenderable);
-            sphere.select();
+                            TransformableNode thing = new TransformableNode(arFragment.getTransformationSystem());
+                            thing.setParent(this.anchorNode);
+                            thing.setRenderable(this.nodeRenderable);
+                            thing.select();
+                        });
+                    })
+                    .exceptionally(
+                            throwable -> {
+                                Log.e(TAG, "Unable to load Renderable.", throwable);
+                                return null;
+                            });
+
         });
     }
 
@@ -52,13 +69,7 @@ class AnchorVisual {
     }
 
     public void setColor(Material material) {
-        color = material;
 
-        MainThreadContext.runOnUiThread(() -> {
-            anchorNode.setRenderable(null);
-            nodeRenderable = ShapeFactory.makeSphere(0.1f, new Vector3(0.0f, 0.15f, 0.0f), color);
-            anchorNode.setRenderable(nodeRenderable);
-        });
     }
 
     public void destroy() {
