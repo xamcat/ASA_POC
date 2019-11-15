@@ -2,11 +2,16 @@
 // Licensed under the MIT license.
 #import "BaseViewController.h"
 
+//new AR STUFF
+#import <SceneKit/SceneKit.h>
+#import <ModelIO/ModelIO.h>
+#import <SceneKit/ModelIO.h>
+
 // Set this to the account ID provided for the Azure Spatial Service resource.
-NSString *const SpatialAnchorsAccountId = @"Set me";
+NSString *const SpatialAnchorsAccountId = @"badb57cb-9078-4878-93e2-726d0dc80459";
 
 // Set this to the account key provided for the Azure Spatial Service resource.
-NSString *const SpatialAnchorsAccountKey = @"Set me";
+NSString *const SpatialAnchorsAccountKey = @"d4p3qmgg/mJooM6BWZMIbYT6VPaiTH593J6UwjEe8V4=";
 
 @implementation AnchorVisual
 @end
@@ -107,10 +112,14 @@ static NSString *MatrixToString(matrix_float4x4 value) {
             [self->_button setTitle:@"Creation failed" forState:UIControlStateNormal];
             [self->_errorControl setHidden:NO];
             [self->_errorControl setTitle:error.localizedDescription forState:UIControlStateNormal];
-            self->_localAnchorCube.firstMaterial.diffuse.contents = self->failedColor;
+//            self->_localAnchorCube.firstMaterial.diffuse.contents = self->failedColor;
+            self -> _localMaterial.diffuse.contents = self ->failedColor;
+            self -> _localAnchorCube.geometry.firstMaterial = self -> _localMaterial;
         } else {
             self->_saveCount++;
-            self->_localAnchorCube.firstMaterial.diffuse.contents = self->savedColor;
+//            self->_localAnchorCube.firstMaterial.diffuse.contents = self->savedColor;
+            self -> _localMaterial.diffuse.contents = self ->savedColor;
+            self -> _localAnchorCube.geometry.firstMaterial = self -> _localMaterial;
             self->_targetId = self->_cloudAnchor.identifier;
             AnchorVisual* visual = self->_anchorVisuals[@""];
             visual.cloudAnchor = self->_cloudAnchor;
@@ -363,11 +372,11 @@ static NSString *MatrixToString(matrix_float4x4 value) {
     
     _anchorVisuals = [[NSMutableDictionary<NSString*, AnchorVisual *> alloc] init];
 
-    readyColor = [UIColor.blueColor colorWithAlphaComponent:0.6];           // blue for a local anchor
-    savedColor = [UIColor.greenColor colorWithAlphaComponent:0.6];          // green when the cloud anchor was saved successfully
-    foundColor = [UIColor.yellowColor colorWithAlphaComponent:0.6];         // yellow when we successfully located a cloud anchor
-    deletedColor = [UIColor.blackColor colorWithAlphaComponent:0.6];        // grey for a deleted cloud anchor
-    failedColor = [UIColor.redColor colorWithAlphaComponent:0.6];           // red when there was an error
+    readyColor = [UIColor.blueColor colorWithAlphaComponent:1];           // blue for a local anchor
+    savedColor = [UIColor.greenColor colorWithAlphaComponent:1];          // green when the cloud anchor was saved successfully
+    foundColor = [UIColor.yellowColor colorWithAlphaComponent:1];         // yellow when we successfully located a cloud anchor
+    deletedColor = [UIColor.blackColor colorWithAlphaComponent:1];        // grey for a deleted cloud anchor
+    failedColor = [UIColor.redColor colorWithAlphaComponent:1];           // red when there was an error
     
     // Control to indicate when we can create an anchor
     _feedbackControl  = [self addButtonAt:_sceneView.bounds.size.height - 40 lines:1];
@@ -454,17 +463,50 @@ static NSString *MatrixToString(matrix_float4x4 value) {
 
 // Override to create and configure nodes for anchors added to the view's session.
 - (SCNNode *)renderer:(id<SCNSceneRenderer>)renderer nodeForAnchor:(ARAnchor *)anchor {
+    //CUBE
+//    for (AnchorVisual* visual in [_anchorVisuals allValues]) {
+//        if (visual.localAnchor == anchor) {
+//            NSLog(@"renderer:nodeForAnchor with local Anchor %p at %@", anchor, MatrixToString(anchor.transform));
+//            SCNBox *cube = [SCNBox boxWithWidth:0.2f height:0.2f length:0.2f chamferRadius:0.0f];
+//            if ([visual.identifier length] > 0) {
+//                cube.firstMaterial.diffuse.contents = foundColor;
+//            } else {
+//                cube.firstMaterial.diffuse.contents = readyColor;
+//                 _localAnchorCube = cube;
+//            }
+//            SCNNode *node = [SCNNode nodeWithGeometry:cube];
+//            visual.node = node;
+//            return node;
+//        }
+//    }
+//    return nil;
+    
+    //PATRICK/ROBOT
+    
     for (AnchorVisual* visual in [_anchorVisuals allValues]) {
         if (visual.localAnchor == anchor) {
             NSLog(@"renderer:nodeForAnchor with local Anchor %p at %@", anchor, MatrixToString(anchor.transform));
-            SCNBox *cube = [SCNBox boxWithWidth:0.2f height:0.2f length:0.2f chamferRadius:0.0f];
+            
+//            SCNBox *cube = [SCNBox boxWithWidth:0.2f height:0.2f length:0.2f chamferRadius:0.0f];
+            NSURL *url = [[NSBundle mainBundle] URLForResource:@"robottttt" withExtension:@"obj"];
+            
+            MDLAsset *asset = [[MDLAsset alloc] initWithURL:url];
+            SCNNode *node = [SCNNode nodeWithMDLObject:[asset objectAtIndex:0]];
+            
+            SCNMaterial *material = [SCNMaterial material];
+//            material.diffuse.contents = [UIColor colorWithHue:0 saturation:0.1 brightness:0.5 alpha:1];
+//            node.geometry.firstMaterial = material;
+            
             if ([visual.identifier length] > 0) {
-                cube.firstMaterial.diffuse.contents = foundColor;
+                material.diffuse.contents = foundColor;
+                node.geometry.firstMaterial = material;
             } else {
-                cube.firstMaterial.diffuse.contents = readyColor;
-                 _localAnchorCube = cube;
+//                cube.firstMaterial.diffuse.contents = readyColor;
+                material.diffuse.contents = readyColor;
+                node.geometry.firstMaterial = material;
+                 _localAnchorCube = node;
             }
-            SCNNode *node = [SCNNode nodeWithGeometry:cube];
+//            SCNNode *node = [SCNNode nodeWithGeometry:cube];
             visual.node = node;
             return node;
         }

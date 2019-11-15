@@ -34,7 +34,12 @@ typedef enum DemoStep {
     ASACloudSpatialAnchorSession *_cloudSession;
     ASACloudSpatialAnchor *_cloudAnchor;
     ARAnchor *_localAnchor;
-    SCNBox *_localAnchorCube;
+//    SCNBox *_localAnchorCube;
+    
+    SCNNode *_localAnchorCube;
+    SCNMaterial *_localMaterial;
+    
+    
     
     BOOL _enoughDataForSaving;        ///< whether we have enough data to save an anchor
     BOOL _currentlySavingAnchor;      ///< whether we are in the progress on saving an anchor
